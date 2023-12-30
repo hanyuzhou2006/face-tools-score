@@ -7,8 +7,8 @@ import Result from "./result"
 import Service from "./service"
 import { combineFinal, expectScore, getScore, transRows } from "./utils"
 
-const defaultPefromance = Array(6).fill(['', '', '']);
-const defaultService = Array(4).fill(['', '', '']);
+const defaultPefromance = Array.from({ length: 6 }, () => ['', '', '']);
+const defaultService = Array.from({ length: 4 }, () => ['', '', '']);
 
 export default function Home() {
   const [performance, setPerformance] = useState<string[][]>(defaultPefromance);
