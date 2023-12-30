@@ -56,6 +56,8 @@ const EditableTable: React.FC<EditableTableProps> = ({ data, defaultData, column
                   min={0}
                   max={100}
                   onChange={(e) => handleCellChange(rowIndex, columnIndex, e.target.value)}
+                  tabIndex={columnIndex === 2 ? -1 : undefined}
+                  readOnly={columnIndex === 2}
                 />
               </td>
             ))}
