@@ -29,7 +29,7 @@ export default function Home() {
   const onPerformanceRowsChange = (rows: number) => {
     const ori = performance.length;
     if (rows > ori) {
-      const newRows = Array(rows - ori).fill(['', '', '']);
+      const newRows = Array.from({length:rows - ori},()=>['', '', '']);
       const performanceData = performance.concat(newRows);
       setPerformance(performanceData);
       return;
