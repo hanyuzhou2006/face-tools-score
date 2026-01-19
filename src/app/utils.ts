@@ -76,7 +76,6 @@ function formatFinals(finals: number[], delta = 0): [number[], number] {
       
       // Calculate remaining overflow after redistribution
       const newTotal = redistributed.reduce((sum, f) => sum + f, 0);
-      const expectedTotal = adjustedFinals.reduce((sum, f) => sum + Math.min(f, 100), 0);
       const remainingOverflow = Math.max(0, adjustedFinals.reduce((sum, f) => sum + f, 0) - newTotal);
       
       return [redistributed, remainingOverflow / len];
@@ -125,8 +124,10 @@ export function expectScore(
   
   // Distribute performance remainder to service scores proportionally
   if (remainPerformance > 0 && service.length > 0) {
+    // Adjust service scores based on performance overflow, accounting for category weight difference
+    const categoryWeightRatio = performanceProportion / serviceProportion;
     const serviceWithRemainder = finalService.map(f => 
-      f + (remainPerformance * performanceProportion / serviceProportion)
+      f + (remainPerformance * categoryWeightRatio)
     );
     
     // Format service scores and handle overflow
@@ -139,9 +140,12 @@ export function expectScore(
       const totalHeadroom = performanceHeadrooms.reduce((sum, h) => sum + h, 0);
       
       if (totalHeadroom > 0) {
+        // Adjust for the inverse category weight ratio when redistributing back
+        const inverseCategoryWeightRatio = serviceProportion / performanceProportion;
         const redistributedPerformance = formattedFinalPerformance.map((f, i) => {
           if (performanceHeadrooms[i] > 0) {
-            const share = (performanceHeadrooms[i] / totalHeadroom) * remainService * (serviceProportion / performanceProportion);
+            const headroomProportion = performanceHeadrooms[i] / totalHeadroom;
+            const share = headroomProportion * remainService * inverseCategoryWeightRatio;
             return Math.min(100, f + share);
           }
           return f;
@@ -156,12 +160,6 @@ export function expectScore(
   // Format service scores without remainder
   const [formattedFinalService] = formatFinals(finalService);
   return [formattedFinalPerformance, formattedFinalService];
-}
-
-function getFinalScore(expect: number, self: number, upper: number) {
-  const selfScore = selfProportion * self;
-  const upperScore = upperProportion * upper;
-  return (expect - selfScore - upperScore) / finalProportion;
 }
 
 export function combineFinal(ori: string[][], combine: number[]): string[][] {
